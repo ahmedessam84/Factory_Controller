@@ -1,0 +1,18 @@
+--cpu=Cortex-M4.fp
+".\objects\factory_controller.o"
+".\objects\startup_rvmdk.o"
+".\objects\uartstdio.o"
+".\objects\list.o"
+".\objects\queue.o"
+".\objects\tasks.o"
+".\objects\timers.o"
+".\objects\heap_2.o"
+".\objects\port.o"
+".\objects\rtc.o"
+".\objects\ustdlib.o"
+".\objects\outlet.o"
+"D:\ti\TivaWare_C_Series-2.1.3.156\driverlib\rvmdk\driverlib.lib"
+--library_type=microlib --strict --scatter "Factory_Controller.sct"
+--entry Reset_Handler --summary_stderr --info summarysizes --map --xref --callgraph --symbols
+--info sizes --info totals --info unused --info veneers
+--list ".\Listings\Factory_Controller.map" -o .\Objects\Factory_Controller.axf
