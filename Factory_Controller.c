@@ -16,12 +16,10 @@
 #include "inc/hw_hibernate.h"
 #include "driverlib/hibernate.h"
 
-
 #include "FreeRTOS.h"
 #include "task.h"
 #include "queue.h"
 #include "semphr.h"
-
 
 #include "rtc.h"
 #include "outlet.h"
@@ -45,6 +43,7 @@ __error__(char *pcFilename, uint32_t ui32Line)
 // This hook is called by FreeRTOS when a stack overflow error is detected.
 //
 //*****************************************************************************
+
 void
 vApplicationStackOverflowHook( xTaskHandle *pxTask, char *pcTaskName )
 {
@@ -57,7 +56,6 @@ vApplicationStackOverflowHook( xTaskHandle *pxTask, char *pcTaskName )
     {
     }
 }
-
 
 //*****************************************************************************
 //
@@ -100,8 +98,7 @@ int
 main(void)
 {
 		struct tm calendar;
-		Outlet_t Outlet;
-	
+		Outlet_Schedule_t Schedule;
 		char buffer[20];
 
 		//
@@ -123,42 +120,50 @@ main(void)
 		calendar.tm_mon = 3-1;
 		calendar.tm_year = 2017 - 1900;
 		
+		//
 		// preset test schedule
-		Outlet.hrOn[0] = 15;
-		Outlet.minOn[0] = 33;
-		
-		Outlet.hrOff[0] = 15;
-		Outlet.minOff[0] = 34;
-		
+		//
+		Schedule.hrOn = 15;
+		Schedule.minOn = 32;
+		Schedule.hrOff = 15;
+		Schedule.minOff = 34;
 		
 		// load the hibernation counter register with the values set in calendar
 		Rtc_SetDate( &calendar );
 		
-		//Outlet_On(OUTLET3);
+		Outlet_Set_Schedule( 0, &Schedule );
     
 		while(1)
     {				
+			
+			Outlet_Check_Schedule();
+			
 			//Get date from register
 			Rtc_GetDate( &calendar );
 			//Convert decimal time to ascii format
 			strftime( buffer, 32, "%X %x\n", &calendar );
-		
-			//Display date
+			//Display date and time
 			UARTprintf("%s", buffer);
 
+			
 			//Display outlet status
 			int i;
 			for(i=0;i<OUTLET_SIZE;++i)
 			{
-				UARTprintf("%02d  ", Outlet.uia8OutletStatus[i]);
+				if( Outlet_Get_Status(i) )
+				{
+					UARTprintf("ON ");
+				}
+				else
+				{
+					UARTprintf("OFF ");
+				}
 			}
 			
 			UARTprintf("\n\n");
-			
+						
 			//Delay 1 second
 			SysCtlDelay( SysCtlClockGet() / 6 );
-
-			Outlet_Check_Schedule(&Outlet);
 			
     }
 }

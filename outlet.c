@@ -18,6 +18,8 @@
 #include "outlet.h"
 #include "rtc.h"
 
+static Outlet_t Outlet;
+
 // this function initialized the 8 digiatl pins to control the relayed outlets
 // port B is used as the output control port for the relays
 
@@ -53,7 +55,8 @@ void Outlet_Off(uint8_t ui8Pins)
 	GPIOPinWrite(GPIO_PORTA_BASE + (CURRENT_PORT<<12), ui8Pins, 0x00);
 }
 
-void Outlet_Check_Schedule(Outlet_t *Outlet_ptr)
+
+void Outlet_Check_Schedule()
 {
 	struct tm temp_cal;
 	
@@ -65,22 +68,30 @@ void Outlet_Check_Schedule(Outlet_t *Outlet_ptr)
 	int i = 0;
 	for(i=0;i<OUTLET_SIZE;++i)
 	{
-		if( ( (temp_cal.tm_hour >= Outlet_ptr->hrOn[i]) && (temp_cal.tm_min >= Outlet_ptr->minOn[i]) ) && 
-			( (temp_cal.tm_hour <= Outlet_ptr->hrOff[i]) && (temp_cal.tm_min < Outlet_ptr->minOff[i]) ) )
+		if( ( (temp_cal.tm_hour >= Outlet.Schedule[i].hrOn) && (temp_cal.tm_min >= Outlet.Schedule[i].minOn) ) && 
+			( (temp_cal.tm_hour <= Outlet.Schedule[i].hrOff) && (temp_cal.tm_min < Outlet.Schedule[i].minOff) ) )
 		{
 			Outlet_On(1<<i);
-			Outlet_ptr->uia8OutletStatus[i] = 1;
+			Outlet.uia8OutletStatus[i] = 1;
 		}
 		else
 		{
 			Outlet_Off(1<<i);
-			Outlet_ptr->uia8OutletStatus[i] = 0;
+			Outlet.uia8OutletStatus[i] = 0;
 		}		
 	}
 	
 }
 
-void Outlet_Set_Schedule(Outlet_t *Outlet_ptr, uint8_t OnTime, uint8_t OffTime )
+bool Outlet_Get_Status( uint8_t outlet )
 {
-	
+	return Outlet.uia8OutletStatus[outlet];
+}
+
+void Outlet_Set_Schedule( uint8_t Outlet_Number, Outlet_Schedule_t * pSet_Time )
+{
+		Outlet.Schedule[Outlet_Number].hrOn = pSet_Time->hrOn;
+		Outlet.Schedule[Outlet_Number].minOn = pSet_Time->minOn;		
+		Outlet.Schedule[Outlet_Number].hrOff = pSet_Time->hrOff;
+		Outlet.Schedule[Outlet_Number].minOff = pSet_Time->minOff;
 }

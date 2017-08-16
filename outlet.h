@@ -18,31 +18,29 @@ extern "C"
 #define PORTC					2
 #define PORTD					3
 #define ALL_PINS 			0xff
-#define OUTLET0 			(1<<0)
-#define OUTLET1 			(1<<1)
-#define OUTLET2 			(1<<2)
-#define OUTLET3 			(1<<3)
-#define OUTLET4				(1<<4)
-#define OUTLET5				(1<<5)
-#define OUTLET6				(1<<6)
-#define OUTLET7				(1<<7)
 #define OUTLET_SIZE		8
 
 #define CURRENT_PORT  PORTB
+
+typedef struct{
+	int hrOn;
+	int minOn;
+	int hrOff;
+	int minOff;
+}Outlet_Schedule_t;
 	
 typedef struct{
-	uint8_t uia8OutletStatus[8];
-	int hrOn[OUTLET_SIZE];
-	int minOn[OUTLET_SIZE];
-	int hrOff[OUTLET_SIZE];
-	int minOff[OUTLET_SIZE];
+	bool uia8OutletStatus[8];
+	Outlet_Schedule_t Schedule[OUTLET_SIZE];
 }Outlet_t;	
 	
 void Outlet_Init(void);
 uint8_t Outlet_Read(uint8_t ui8Pins);
 void Outlet_On(uint8_t ui8Pins);	
 void Outlet_Off(uint8_t ui8Pins);
-void Outlet_Check_Schedule(Outlet_t *Outlet_ptr);
+void Outlet_Check_Schedule(void);
+bool Outlet_Get_Status( uint8_t outlet );
+void Outlet_Set_Schedule( uint8_t Outlet_Number, Outlet_Schedule_t * pSet_Time );
 	
 		
 	
